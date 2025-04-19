@@ -8,14 +8,10 @@ on:
     branches:
       - main  # 你可以指定特定的分支，例如 main 或其他分支
 
-# 设置 GITHUB_TOKEN 的权限，允许部署到 GitHub Releases
 permissions:
-  contents: write  # 允许写入仓库内容，包括 Releases
+  contents: write
   id-token: write
 
-# 并发控制
-# 同一时间只允许一个部署作业运行，跳过在运行中的作业和最新排队的作业之间的排队作业。
-# 但是，不要取消正在进行的作业，因为我们希望允许这些生产部署完成。
 concurrency:
   group: "releases"
   cancel-in-progress: false
@@ -27,17 +23,14 @@ jobs:
       url: ${{ steps.create_release.outputs.html_url }}
     runs-on: ubuntu-latest
     steps:
-      # 检出代码
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 构建项目
       - name: Build
         run: |
           # 在这里添加你的构建命令
           echo "构建项目..."
 
-      # 创建 GitHub Release
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -45,9 +38,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           # 发布的标签名称
-          tag_name: ${{ github.ref }}
+          tag_name: v${{ github.run_number }}  # 使用运行编号生成标签名称
           # 发布的名称
-          release_name: Release ${{ github.ref }}
+          release_name: Release v${{ github.run_number }}
           # 发布的描述
           body: |
             这是发布的内容描述。
@@ -57,7 +50,6 @@ jobs:
           # 是否为发布版本
           prerelease: false
 
-      # 上传构建产物到 Release
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1

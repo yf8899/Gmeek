@@ -1,19 +1,17 @@
-# 工作流名称
 name: Deploy to GitHub Releases
 
-# 触发条件
 on:
   # 手动触发
   workflow_dispatch:
   # 推送代码到仓库时触发
   push:
     branches:
-      - main  # 指定触发工作流的分支，例如 main 或其他分支
+      - main  # 你可以指定特定的分支，例如 main 或其他分支
 
 # 设置 GITHUB_TOKEN 的权限，允许部署到 GitHub Releases
 permissions:
-  contents: read
-  releases: write
+  contents: write  # 允许写入仓库内容，包括 Releases
+  id-token: write
 
 # 并发控制
 # 同一时间只允许一个部署作业运行，跳过在运行中的作业和最新排队的作业之间的排队作业。
@@ -22,14 +20,11 @@ concurrency:
   group: "releases"
   cancel-in-progress: false
 
-# 定义部署作业
 jobs:
   deploy:
-    # 环境信息
     environment:
       name: github-releases
       url: ${{ steps.create_release.outputs.html_url }}
-    # 指定作业运行的环境
     runs-on: ubuntu-latest
     steps:
       # 检出代码

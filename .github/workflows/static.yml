@@ -32,14 +32,21 @@ jobs:
           # 列出当前目录中的文件
           ls -la
 
+      # 生成日期变量
+      - name: Get current date
+        id: get-date
+        run: |
+          echo "RELEASE_DATE=$(date +%Y%m%d_%H%M)" >> $GITHUB_ENV
+          
+      # 发布到 Releases    
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.run_number }}
-          release_name: Release v${{ github.run_number }}
+          tag_name: "release-v${{ env.RELEASE_DATE }}"
+          release_name: "Gmeek-${{ env.RELEASE_DATE }}"
           body: |
             添加了插件功能
             添加static文件夹，用于存放用户自定义文件
@@ -63,6 +70,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/artifact.zip  # 确保路径正确
-          asset_name: artifact.zip
-          asset_content_type: application/zip
